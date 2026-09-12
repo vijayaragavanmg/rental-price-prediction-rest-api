@@ -1,13 +1,16 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy all files from the current directory to the container's working directory
-COPY . .
+# Copy requirements first for better Docker layer caching
+COPY requirements.txt .
 
-# Install dependencies from the requirements file without using cache to reduce image size
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel
+
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
+
+# Copy application code
+COPY . .
 
 # Define the command to start the application using Gunicorn with 4 worker processes
 # - `-w 4`: Uses 4 worker processes for handling requests
